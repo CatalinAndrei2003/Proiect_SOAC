@@ -17,6 +17,6 @@ namespace ConsoleApp1
             {
                 Console.WriteLine(line);
             }
-        }
+        }//nu inteleg ce ai cu mine
     }
 }
