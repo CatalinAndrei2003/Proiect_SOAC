@@ -5,3 +5,4 @@ C:\Users\deodo\source\repos\Proiect_SOAC\Initial Prototype\ConsoleApp1\obj\Debug
 C:\Users\deodo\source\repos\Proiect_SOAC\Initial Prototype\ConsoleApp1\obj\Debug\ConsoleApp1.csproj.CoreCompileInputs.cache
 C:\Users\deodo\source\repos\Proiect_SOAC\Initial Prototype\ConsoleApp1\obj\Debug\ConsoleApp1.exe
 C:\Users\deodo\source\repos\Proiect_SOAC\Initial Prototype\ConsoleApp1\obj\Debug\ConsoleApp1.pdb
+C:\Users\deodo\source\repos\Proiect_SOAC\Initial Prototype\ConsoleApp1\obj\Debug\ConsoleApp1.exe.config
