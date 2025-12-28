@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace ConsoleApp1
 {
@@ -10,6 +11,12 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-        }
+            string filePath = "Date_Intrare/FBUBBLE.TRA";
+
+            foreach (string line in File.ReadLines(filePath))
+            {
+                Console.WriteLine(line);
+            }
+        }//nu inteleg ce ai cu mine
     }
 }
