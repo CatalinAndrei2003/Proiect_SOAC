@@ -1,0 +1,11 @@
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\bin\Debug\WorkProjectV0.1.exe.config
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\bin\Debug\WorkProjectV0.1.exe
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\bin\Debug\WorkProjectV0.1.pdb
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\obj\Debug\WorkProjectV0.1.csproj.AssemblyReference.cache
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\obj\Debug\WorkProjectV0._1.Form1.resources
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\obj\Debug\WorkProjectV0._1.Properties.Resources.resources
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\obj\Debug\WorkProjectV0.1.csproj.GenerateResource.cache
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\obj\Debug\WorkProjectV0.1.csproj.CoreCompileInputs.cache
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\obj\Debug\WorkProjectV0.1.exe
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\obj\Debug\WorkProjectV0.1.pdb
+C:\Users\deodo\source\repos\Proiect_SOAC\WorkProjectV0.1\WorkProjectV0.1\obj\Debug\WorkProjectV0.1.exe.config

@@ -23,5 +23,14 @@ namespace WorkProjectV0._1
                 WNT[i] = -1;  
             }
         }
+        public void ChangeWeights(int k)
+        {
+            for (int i = 0; i < WT.Length; i++)
+            {
+                WT[i] += k;
+                WNT[i] += k;
+            }
+            
+        }
     }
 }
