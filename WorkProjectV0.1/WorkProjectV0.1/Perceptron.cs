@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WorkProjectV0._1
+{
+    public class Perceptron
+    {
+        public int[] WT; 
+        public int[] WNT; 
+
+        public Perceptron(int k)
+        {
+            WT = new int[k];
+            WNT = new int[k];
+
+            
+            for (int i = 0; i < k; i++)
+            {
+                WT[i] = 1;   
+                WNT[i] = -1;  
+            }
+        }
+    }
+}
