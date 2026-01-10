@@ -14,6 +14,7 @@ namespace WorkProjectV0._1
 {
     public partial class Form1 : Form
     {
+        
         public struct Instructiune
         {
             public string tipInstructiune;
@@ -27,6 +28,7 @@ namespace WorkProjectV0._1
             }
         }
         List<Instructiune> Instructiuni = new List<Instructiune>();
+        
 
         public Form1()
         {
