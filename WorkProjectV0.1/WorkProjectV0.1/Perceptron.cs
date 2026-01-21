@@ -23,12 +23,14 @@ namespace WorkProjectV0._1
                 WNT[i] = -1;  
             }
         }
-        public void ChangeWeights(int k)
+        public void ChangeWeights(int tipSalt)
         {
             for (int i = 0; i < WT.Length; i++)
             {
-                WT[i] += k;
-                WNT[i] += k;
+                if( WT[i] <127 && WT[i] > -128 ) 
+                    WT[i] += tipSalt;
+                if(WNT[i] < 127 && WNT[i] > -128)
+                    WNT[i] += tipSalt;
             }
             
         }

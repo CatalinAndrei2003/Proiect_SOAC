@@ -29,109 +29,189 @@ namespace WorkProjectV0._1
         List<Instructiune> Instructiuni = new List<Instructiune>();
         Perceptron[] tabelPerceptroni;
         int[] HR;
+        int totalSalturi;
+        int totalTakenReale;
+        int totalNotTakenReale;
+        int predictiiTakenCorecte;
+        int predictiiNotTakenCorecte;
         public Form1()
         {
             InitializeComponent();
-            string filePath = "Date_Intrare/FPERM.TRA";
+        }
+        public void IncarcaIntructiuni(string filePath)
+        {
+            Instructiuni.Clear();
+
             foreach (string line in File.ReadLines(filePath))
             {
                 string[] lineText = line.Split(' ');
-                Instructiune instructiune = new Instructiune(lineText[0],
-                                                            int.Parse(lineText[1]),
-                                                            int.Parse(lineText[2]));
-                Instructiuni.Add(instructiune);
-            }
-            foreach (Instructiune instructiune in Instructiuni)
-            {
-                Console.WriteLine("{0} {1} {2}", instructiune.tipInstructiune, instructiune.PC, instructiune.Destinatie);
+                if (lineText.Length >= 3)
+                {
+                    Instructiune instr = new Instructiune(
+                        lineText[0],
+                        int.Parse(lineText[1]),
+                        int.Parse(lineText[2])
+                    );
+                    Instructiuni.Add(instr);
+                }
             }
         }
-        private void AfiseazaStatistici(int total, int tReal, int ntReal, int tCorect, int ntCorect)
+        private void AfiseazaStatisticiPeInterfata(int total, int tReal, int ntReal, int tCorect, int ntCorect, string filePath)
         {
             double acurateteTotala = ((double)(tCorect + ntCorect) / total) * 100;
             double procentTakenCorect = (tReal > 0) ? ((double)tCorect / tReal) * 100 : 0;
             double procentNotTakenCorect = (ntReal > 0) ? ((double)ntCorect / ntReal) * 100 : 0;
 
-            Console.WriteLine("\n======= REZULTATE SIMULARE =======");
-            Console.WriteLine($"Numarul total de salturi: {total}");
-            Console.WriteLine($"Numarul total de salturi TAKEN: {tReal}");
-            Console.WriteLine($"Numarul de salturi TAKEN prezise corect: {tCorect} ({procentTakenCorect:F2}%)");
-            Console.WriteLine($"Numarul total de salturi NOT-TAKEN: {ntReal}");
-            Console.WriteLine($"Numarul de salturi NOT-TAKEN prezise corect: {ntCorect} ({procentNotTakenCorect:F2}%)");
-            Console.WriteLine("----------------------------------");
-            Console.WriteLine($"ACURATETE TOTALA SIMULATOR: {acurateteTotala:F2}%");
-            Console.WriteLine("==================================\n");
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"======= REZULTATE: {filePath} =======");
+            sb.AppendLine($"Total salturi: {total}");
+            sb.AppendLine($"TAKEN Reale: {tReal} | Prezise Corect: {tCorect} ({procentTakenCorect:F2}%)");
+            sb.AppendLine($"NOT-TAKEN Reale: {ntReal} | Prezise Corect: {ntCorect} ({procentNotTakenCorect:F2}%)");
+            sb.AppendLine($"ACURATETE TOTALA: {acurateteTotala:F2}%");
+            sb.AppendLine("==========================================\n");
+
+            // Afisăm în RichTextBox
+            rtbStatistici.AppendText(sb.ToString());
+
+            // Scroll automat la finalul textului
+            rtbStatistici.ScrollToCaret();
         }
-        private void StartBtn_MouseClick(object sender, MouseEventArgs e)
+        public void RunSimulation()
         {
-            int totalSalturi = 0;
-            int totalTakenReale = 0;
-            int totalNotTakenReale = 0;
-            int predictiiTakenCorecte = 0;    
-            int predictiiNotTakenCorecte = 0;
+            totalSalturi = 0;
+            totalTakenReale = 0;
+            totalNotTakenReale = 0;
+            predictiiTakenCorecte = 0;
+            predictiiNotTakenCorecte = 0;
 
             int nrPerceptroni = (int)NrPerceptroni.Value;
             int nrWeights = (int)this.NrBitiHG.Value;
             int nrBitiHR = nrWeights;
 
+            InitializeTableOfPerceptrons(nrPerceptroni, nrWeights);
+
+            InitializeHR(nrBitiHR);
+            
+            foreach (Instructiune instructiune in Instructiuni)
+            {
+                totalSalturi += 1;
+                //make the basic initializations
+                int PC = instructiune.PC;
+                string tipInstructiune = instructiune.tipInstructiune;
+                int Destinatie = instructiune.Destinatie;
+
+                Perceptron perceptronAles = ChoosePerceptron(PC, nrPerceptroni);
+
+                int suma = CalculateSumOfWeights(perceptronAles, nrBitiHR);
+
+                int predictie = MakePrediction(suma);
+                
+                int tipSaltReal = FindTheTypeOfTheCurrentJump(tipInstructiune);
+
+                VerifyIfThePredictionWasCorrect(
+                    predictie,
+                    tipSaltReal,
+                    ref totalTakenReale,
+                    ref totalNotTakenReale,
+                    ref predictiiTakenCorecte,
+                    ref predictiiNotTakenCorecte);
+
+                perceptronAles.ChangeWeights(tipSaltReal);
+
+                RotateBitsOfHRAndPutTheNewJump(tipSaltReal);
+
+            }
+
+        }
+
+        public void InitializeTableOfPerceptrons(int nrPerceptroni, int nrWeights)
+        {
             tabelPerceptroni = new Perceptron[nrPerceptroni];
             for (int i = 0; i < nrPerceptroni; i++)
             {
                 tabelPerceptroni[i] = new Perceptron(nrWeights);
             }
-
+        }
+        public void InitializeHR(int nrBitiHR)
+        {
             HR = new int[nrBitiHR];
             for (int i = 0; i < HR.Length; i++)
             {
                 HR[i] = -1;
             }
-            foreach (Instructiune instructiune in Instructiuni)
+        }
+        public Perceptron ChoosePerceptron(int PC, int nrPerceptroni)
+        {
+            int index = PC % nrPerceptroni;
+            return tabelPerceptroni[index];
+        }
+        public int CalculateSumOfWeights(Perceptron perceptronAles, int nrBitiHR)
+        {
+            int suma = 0;
+            for (int i = 0; i < nrBitiHR; i++)
             {
-                totalSalturi += 1;
-                int PC = instructiune.PC;
-                string tipInstructiune = instructiune.tipInstructiune;
-                int Destinatie = instructiune.Destinatie;
-
-                int index = PC % nrPerceptroni;
-                Perceptron perceptronAles = tabelPerceptroni[index];
-                int suma = 0;
-                for (int i = 0; i < nrBitiHR; i++)
-                {
-                    if (HR[i] == 1)
-                        suma += perceptronAles.WT[i];
-                    else
-                        suma += perceptronAles.WNT[i];
-                }
-                int predictie;
-                if (suma >= 0)
-                    predictie = 1;
+                if (HR[i] == 1)
+                    suma += perceptronAles.WT[i];
                 else
-                    predictie = -1;
-
-                int tipSaltReal = (tipInstructiune[0] == 'N') ? -1 : 1;
-
-                if (tipSaltReal == 1)
-                {
-                    totalTakenReale++;
-                    if (predictie == 1) predictiiTakenCorecte += 1;
-                }
-                else
-                {
-                    totalNotTakenReale++;
-                    if (predictie == -1) predictiiNotTakenCorecte += 1;
-                }
-
-                // --- ACTUALIZARE (Exact cum ai facut tu) ---
-                perceptronAles.ChangeWeights(tipSaltReal);
-
-                for (int i = 0; i < HR.Length-1; i++)
-                {
-                    HR[i] = HR[i + 1];
-                }
-                HR[HR.Length - 1] = tipSaltReal;
-                
+                    suma += perceptronAles.WNT[i];
             }
-            AfiseazaStatistici(totalSalturi, totalTakenReale, totalNotTakenReale, predictiiTakenCorecte, predictiiNotTakenCorecte);
+            return suma;
+        }
+        public int MakePrediction(int suma)
+        {
+            if (suma >= 0)
+                return 1;
+            else
+                return -1;
+        }
+        public int FindTheTypeOfTheCurrentJump(string tipInstructiune)
+        {
+            return tipInstructiune[0] == 'N' ? -1 : 1;
+        }
+
+        public void VerifyIfThePredictionWasCorrect(
+            int predictie, 
+            int tipSaltReal,
+            ref int totalTakenReale,
+            ref int totalNotTakenReale,
+            ref int predictiiTakenCorecte,
+            ref int predictiiNotTakenCorecte)
+        {
+            if (tipSaltReal == 1)
+            {
+                totalTakenReale += 1;
+                if (predictie == 1) predictiiTakenCorecte += 1;
+            }
+            else
+            {
+                totalNotTakenReale += 1;
+                if (predictie == -1) predictiiNotTakenCorecte += 1;
+            }
+        }
+        public void RotateBitsOfHRAndPutTheNewJump(int tipSaltReal)
+        {
+            for (int i = 0; i < HR.Length - 1; i++)
+            {
+                HR[i] = HR[i + 1];
+            }
+            HR[HR.Length - 1] = tipSaltReal;
+        }
+        private void StartBtn_MouseClick(object sender, MouseEventArgs e)
+        {
+            rtbStatistici.Clear();
+            string folderPath = @"Date_Intrare";
+            var allFiles = Directory.EnumerateFiles(folderPath, "*.TRA");
+            foreach ( var file in allFiles) 
+            {
+                IncarcaIntructiuni(file);
+                RunSimulation();
+                AfiseazaStatisticiPeInterfata(totalSalturi,
+                    totalTakenReale,
+                    totalNotTakenReale,
+                    predictiiTakenCorecte,
+                    predictiiNotTakenCorecte,
+                    file);
+            }
         }
     }
 }
