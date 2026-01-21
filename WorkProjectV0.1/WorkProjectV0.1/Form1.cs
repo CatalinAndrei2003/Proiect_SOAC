@@ -38,6 +38,25 @@ namespace WorkProjectV0._1
         {
             InitializeComponent();
         }
+        private void StartBtn_MouseClick(object sender, MouseEventArgs e)
+        {
+            rtbStatistici.Clear();
+            string folderPath = @"Date_Intrare";
+            var allFiles = Directory.EnumerateFiles(folderPath, "*.TRA");
+            foreach ( var file in allFiles) 
+            {
+                IncarcaIntructiuni(file);
+                RunSimulation();
+                AfiseazaStatisticiPeInterfata(totalSalturi,
+                    totalTakenReale,
+                    totalNotTakenReale,
+                    predictiiTakenCorecte,
+                    predictiiNotTakenCorecte,
+                    file);
+            }
+        }
+
+
         public void IncarcaIntructiuni(string filePath)
         {
             Instructiuni.Clear();
@@ -56,7 +75,60 @@ namespace WorkProjectV0._1
                 }
             }
         }
-        private void AfiseazaStatisticiPeInterfata(int total, int tReal, int ntReal, int tCorect, int ntCorect, string filePath)
+        public void RunSimulation()
+        {
+            totalSalturi = 0;
+            totalTakenReale = 0;
+            totalNotTakenReale = 0;
+            predictiiTakenCorecte = 0;
+            predictiiNotTakenCorecte = 0;
+
+            int nrPerceptroni = (int)NrPerceptroni.Value;
+            int nrWeights = (int)this.NrBitiHG.Value;
+            int nrBitiHR = nrWeights;
+
+            InitializeTableOfPerceptrons(nrPerceptroni, nrWeights);
+
+            InitializeHR(nrBitiHR);
+
+            foreach (Instructiune instructiune in Instructiuni)
+            {
+                totalSalturi += 1;
+                //make the basic initializations
+                int PC = instructiune.PC;
+                string tipInstructiune = instructiune.tipInstructiune;
+                int Destinatie = instructiune.Destinatie;
+
+                Perceptron perceptronAles = ChoosePerceptron(PC, nrPerceptroni);
+
+                int suma = CalculateSumOfWeights(perceptronAles, nrBitiHR);
+
+                int predictie = MakePrediction(suma);
+
+                int tipSaltReal = FindTheTypeOfTheCurrentJump(tipInstructiune);
+
+                VerifyIfThePredictionWasCorrect(
+                    predictie,
+                    tipSaltReal,
+                    ref totalTakenReale,
+                    ref totalNotTakenReale,
+                    ref predictiiTakenCorecte,
+                    ref predictiiNotTakenCorecte);
+
+                perceptronAles.ChangeWeights(tipSaltReal);
+
+                RotateBitsOfHRAndPutTheNewJump(tipSaltReal);
+
+            }
+
+        }
+        private void AfiseazaStatisticiPeInterfata(
+            int total,
+            int tReal,
+            int ntReal,
+            int tCorect,
+            int ntCorect,
+            string filePath)
         {
             double acurateteTotala = ((double)(tCorect + ntCorect) / total) * 100;
             double procentTakenCorect = (tReal > 0) ? ((double)tCorect / tReal) * 100 : 0;
@@ -76,53 +148,7 @@ namespace WorkProjectV0._1
             // Scroll automat la finalul textului
             rtbStatistici.ScrollToCaret();
         }
-        public void RunSimulation()
-        {
-            totalSalturi = 0;
-            totalTakenReale = 0;
-            totalNotTakenReale = 0;
-            predictiiTakenCorecte = 0;
-            predictiiNotTakenCorecte = 0;
 
-            int nrPerceptroni = (int)NrPerceptroni.Value;
-            int nrWeights = (int)this.NrBitiHG.Value;
-            int nrBitiHR = nrWeights;
-
-            InitializeTableOfPerceptrons(nrPerceptroni, nrWeights);
-
-            InitializeHR(nrBitiHR);
-            
-            foreach (Instructiune instructiune in Instructiuni)
-            {
-                totalSalturi += 1;
-                //make the basic initializations
-                int PC = instructiune.PC;
-                string tipInstructiune = instructiune.tipInstructiune;
-                int Destinatie = instructiune.Destinatie;
-
-                Perceptron perceptronAles = ChoosePerceptron(PC, nrPerceptroni);
-
-                int suma = CalculateSumOfWeights(perceptronAles, nrBitiHR);
-
-                int predictie = MakePrediction(suma);
-                
-                int tipSaltReal = FindTheTypeOfTheCurrentJump(tipInstructiune);
-
-                VerifyIfThePredictionWasCorrect(
-                    predictie,
-                    tipSaltReal,
-                    ref totalTakenReale,
-                    ref totalNotTakenReale,
-                    ref predictiiTakenCorecte,
-                    ref predictiiNotTakenCorecte);
-
-                perceptronAles.ChangeWeights(tipSaltReal);
-
-                RotateBitsOfHRAndPutTheNewJump(tipSaltReal);
-
-            }
-
-        }
 
         public void InitializeTableOfPerceptrons(int nrPerceptroni, int nrWeights)
         {
@@ -168,9 +194,8 @@ namespace WorkProjectV0._1
         {
             return tipInstructiune[0] == 'N' ? -1 : 1;
         }
-
         public void VerifyIfThePredictionWasCorrect(
-            int predictie, 
+            int predictie,
             int tipSaltReal,
             ref int totalTakenReale,
             ref int totalNotTakenReale,
@@ -196,22 +221,7 @@ namespace WorkProjectV0._1
             }
             HR[HR.Length - 1] = tipSaltReal;
         }
-        private void StartBtn_MouseClick(object sender, MouseEventArgs e)
-        {
-            rtbStatistici.Clear();
-            string folderPath = @"Date_Intrare";
-            var allFiles = Directory.EnumerateFiles(folderPath, "*.TRA");
-            foreach ( var file in allFiles) 
-            {
-                IncarcaIntructiuni(file);
-                RunSimulation();
-                AfiseazaStatisticiPeInterfata(totalSalturi,
-                    totalTakenReale,
-                    totalNotTakenReale,
-                    predictiiTakenCorecte,
-                    predictiiNotTakenCorecte,
-                    file);
-            }
-        }
+
+
     }
 }
